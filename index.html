@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora Científica | Daniel Alexander Cedeño Díaz</title>
+    <style>
+        :root {
+            --bg-canvas: #0b0f19;
+            --bg-surface: #131a2a;
+            --bg-elevated: #1b2438;
+            --bg-glass: rgba(19, 26, 42, 0.85);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-subtle: rgba(148, 163, 184, 0.16);
+            
+            /* Paleta Biología: Esmeralda / Turquesa Profundo */
+            --bio-accent: #10b981;
+            --bio-glow: rgba(16, 185, 129, 0.18);
+            --bio-soft: rgba(16, 185, 129, 0.08);
+            --bio-border: rgba(16, 185, 129, 0.35);
+
+            /* Paleta Química: Índigo / Violeta Eléctrico */
+            --qui-accent: #8b5cf6;
+            --qui-glow: rgba(139, 92, 246, 0.18);
+            --qui-soft: rgba(139, 92, 246, 0.08);
+            --qui-border: rgba(139, 92, 246, 0.35);
+
+            /* Variables Activas */
+            --active-accent: var(--bio-accent);
+            --active-glow: var(--bio-glow);
+            --active-soft: var(--bio-soft);
+            --active-border: var(--bio-border);
+
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-card: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            background-image: 
+                radial-gradient(circle at 12% 10%, var(--active-glow) 0%, transparent 40%),
+                radial-gradient(circle at 88% 90%, rgba(56, 189, 248, 0.07) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-image 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* Pantalla de Animación de Entrada (Splash Screen) */
+        .welcome-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-canvas);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeOutSplash 0.8s ease 2.6s forwards;
+            pointer-events: none;
+        }
+
+        .welcome-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--bio-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(2rem, 4vw, 3rem);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.25);
+            animation: scaleInSplash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .welcome-avatar {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--bio-accent), #38bdf8);
+            display: grid;
+            place-items: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0b0f19;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        .welcome-title {
+            font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .welcome-subtitle {
+            font-size: 0.9rem;
+            color: var(--bio-accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .welcome-details {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            text-align: left;
+        }
+
+        .welcome-detail-item {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            word-break: break-word;
+        }
+
+        .welcome-detail-item strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            margin-top: 0.15rem;
+        }
+
+        @keyframes scaleInSplash {
+            0% {
+                opacity: 0;
+                transform: scale(0.85) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes fadeOutSplash {
+            0% {
+                opacity: 1;
+                visibility: visible;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(16, 185, 129, 0.7); }
+        }
+
+        /* Barra Superior Académica */
+        .top-bar {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.9rem clamp(1rem, 3vw, 2.5rem);
+        }
+
+        .top-bar-inner {
+            max-width: 1360px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .brand-emblem {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--active-accent), #38bdf8);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #0b0f19;
+            box-shadow: 0 0 20px var(--active-glow);
+            flex-shrink: 0;
+        }
+
+        .brand-titles h1 {
+            font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
+
+        .brand-titles p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .student-badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-pill {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            font-size: clamp(0.78rem, 1.5vw, 0.85rem);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            word-break: break-word;
+        }
+
+        .meta-pill strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Layout Principal */
+        .workspace {
+            max-width: 1360px;
+            width: 100%;
+            margin: 0 auto;
+            padding: clamp(1rem, 2.5vw, 2rem);
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 1.75rem;
+            flex: 1;
+            align-items: start;
+        }
+
+        @media (max-width: 920px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panel Lateral de Control */
+        .control-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            top: 84px;
+        }
+
+        @media (max-width: 920px) {
+            .control-panel {
+                position: static;
+            }
+        }
+
+        /* Selector Tipo Interruptor Deslizante de Cuaderno */
+        .notebook-dial-box {
+            background: var(--bg-canvas);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.85rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .dial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .dial-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--active-accent);
+            box-shadow: 0 0 10px var(--active-accent);
+        }
+
+        .notebook-flip-trigger {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--active-border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            color: var(--text-main);
+            transition: all 0.25s ease;
+            text-align: left;
+        }
+
+        .notebook-flip-trigger:hover {
+            background: var(--active-soft);
+            border-color: var(--active-accent);
+            box-shadow: 0 4px 16px var(--active-glow);
+        }
+
+        .flip-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+
+        .flip-current-name {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--active-accent);
+            letter-spacing: -0.01em;
+            word-break: break-word;
+        }
+
+        .flip-hint-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            word-break: break-word;
+        }
+
+        .flip-cycle-badge {
+            background: var(--active-accent);
+            color: #0b0f19;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .nav-section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            padding-left: 0.25rem;
+        }
+
+        .module-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .module-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            word-break: break-word;
+        }
+
+        .module-btn:hover {
+            border-color: var(--active-border);
+            color: var(--text-main);
+            transform: translateX(3px);
+        }
+
+        .module-btn.is-selected {
+            background: var(--active-soft);
+            border-color: var(--active-accent);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .module-num {
+            background: var(--bg-canvas);
+            color: var(--active-accent);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--active-border);
+            flex-shrink: 0;
+        }
+
+        .module-btn.is-selected .module-num {
+            background: var(--active-accent);
+            color: #0b0f19;
+        }
+
+        /* Área de Lectura y Estudio */
+        .notebook-stage {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: clamp(1.25rem, 3.5vw, 2.5rem);
+            box-shadow: var(--shadow-card);
+            min-height: 600px;
+        }
+
+        .topic-view {
+            display: none;
+            animation: fadeSlide 0.3s ease forwards;
+        }
+
+        .topic-view.is-visible {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .topic-hero {
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--active-soft);
+            color: var(--active-accent);
+            border: 1px solid var(--active-border);
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .topic-hero h2 {
+            font-size: clamp(1.45rem, 3.5vw, 2rem);
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .content-section {
+            margin-bottom: 2.25rem;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-heading {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--active-accent);
+            margin-bottom: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .section-heading::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 1.15rem;
+            background: var(--active-accent);
+            border-radius: 4px;
+        }
+
+        .body-text {
+            color: #cbd5e1;
+            line-height: 1.72;
+            font-size: 0.96rem;
+            margin-bottom: 1rem;
+        }
+
+        .body-text strong {
+            color: var(--text-main);
+        }
+
+        /* Tarjetas de Destacado */
+        .callout-panel {
+            background: linear-gradient(135deg, var(--active-soft), rgba(27, 36, 56, 0.6));
+            border: 1px solid var(--active-border);
+            border-radius: var(--radius-md);
+            padding: 1.15rem 1.35rem;
+            margin: 1.25rem 0;
+            font-size: 0.94rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        .callout-panel.alert-danger {
+            background: rgba(239, 68, 68, 0.09);
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .callout-panel.alert-danger strong {
+            color: #f87171;
+        }
+
+        /* Esquemas Visuales CSS Puros */
+        .visual-schema {
+            background: var(--bg-canvas);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.35rem;
+            margin: 1.5rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .schema-node {
+            background: var(--bg-elevated);
+            border: 1px solid var(--active-border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .schema-node-symbol {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--active-accent);
+            background: var(--active-soft);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--active-border);
+            word-break: break-word;
+        }
+
+        .schema-node-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .schema-node-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Listas de Conceptos */
+        .concept-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .concept-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            font-size: 0.94rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            transition: border-color 0.2s ease;
+        }
+
+        .concept-card:hover {
+            border-color: var(--active-border);
+        }
+
+        .concept-card strong {
+            color: var(--active-accent);
+        }
+
+        /* Cuadrícula de Tarjetas y Ejercicios */
+        .cards-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .data-tile {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.65rem;
+        }
+
+        .tile-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .formula-display {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            background: var(--bg-canvas);
+            padding: 0.65rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .reveal-action {
+            background: var(--active-soft);
+            color: var(--active-accent);
+            border: 1px solid var(--active-border);
+            padding: 0.55rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.83rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .reveal-action:hover {
+            background: var(--active-accent);
+            color: #0b0f19;
+        }
+
+        .solution-drawer {
+            display: none;
+            background: var(--bg-canvas);
+            border-left: 3px solid var(--active-accent);
+            padding: 0.65rem 0.85rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.45;
+        }
+
+        .solution-drawer.is-open {
+            display: block;
+        }
+
+        .formula-banner {
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--active-accent);
+            background: var(--bg-canvas);
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+            margin: 0.75rem 0;
+            border: 1px solid var(--active-border);
+        }
+
+        /* Navegación Secuencial Inferior entre Temas del Cuaderno */
+        .lesson-footer-nav {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .step-nav-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 0.65rem 1.1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            word-break: break-word;
+        }
+
+        .step-nav-btn:hover:not(:disabled) {
+            border-color: var(--active-accent);
+            background: var(--active-soft);
+            color: var(--active-accent);
+        }
+
+        .step-nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .step-indicator {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-canvas);
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animación de Entrada / Tarjeta de Presentación Inicial -->
+    <div class="welcome-overlay" id="welcome-overlay">
+        <div class="welcome-card">
+            <div class="welcome-avatar">DC</div>
+            <div>
+                <h2 class="welcome-title">Daniel Alexander Cedeño Díaz</h2>
+                <p class="welcome-subtitle">Especialidad: Informática</p>
+            </div>
+            <div class="welcome-details">
+                <div class="welcome-detail-item">
+                    Institución
+                    <strong>U. E. Atacames</strong>
+                </div>
+                <div class="welcome-detail-item">
+                    Curso / Paralelo
+                    <strong>3° Bachillerato "C"</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="top-bar">
+        <div class="top-bar-inner">
+            <div class="brand-box">
+                <div class="brand-emblem">DC</div>
+                <div class="brand-titles">
+                    <h1>Unidad Educativa Atacames</h1>
+                    <p>Portafolio Digital de Ciencias Naturales</p>
+                </div>
+            </div>
+            <div class="student-badge-group">
+                <span class="meta-pill">Alumno: <strong>Daniel Alexander Cedeño Díaz</strong></span>
+                <span class="meta-pill">Nivel: <strong>3° Bachillerato "C"</strong></span>
+                <span class="meta-pill">Área Técnica: <strong>Informática</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <aside class="control-panel">
+            <div class="notebook-dial-box">
+                <div class="dial-header">
+                    <span>Cuaderno Activo</span>
+                    <span class="dial-status-dot"></span>
+                </div>
+                <button type="button" class="notebook-flip-trigger" id="notebook-cycler" onclick="cycleDiscipline()">
+                    <div class="flip-info">
+                        <span class="flip-current-name" id="active-notebook-label">Biología</span>
+                        <span class="flip-hint-text" id="next-notebook-hint">Pulsar para alternar a Química</span>
+                    </div>
+                    <span class="flip-cycle-badge">Alternar</span>
+                </button>
+            </div>
+
+            <div class="nav-section-label" id="panel-subtitle">Unidades de Biología</div>
+            <ul class="module-list" id="module-navigation"></ul>
+        </aside>
+
+        <section class="notebook-stage">
+
+            <!-- BIOLOGÍA 1 -->
+            <article class="topic-view" id="bio-u1">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Biología · Unidad 01</span>
+                    <h2>Fundamentos y Alcance de la Biotecnología Moderna</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Naturaleza de los Bioprocesos</h3>
+                    <p class="body-text">La biotecnología engloba cualquier técnica o desarrollo tecnológico que emplea sistemas vivos, microorganismos o componentes celulares para sintetizar o transformar productos con fines prácticos. Un error frecuente consiste en equipararla exclusivamente con la manipulación del ADN; sin embargo, muchos procesos biotecnológicos tradicionales operan con organismos sin alterar su genoma, por lo que <strong>biotecnología e ingeniería genética son conceptos distintos</strong>.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">10.000 a.C.</span>
+                            <span class="schema-node-title">Biotecnología Ancestral</span>
+                            <span class="schema-node-desc">Selección de semillas en el Neolítico y fermentación artesanal.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">Biocatalisis</span>
+                            <span class="schema-node-title">Sistemas Celulares</span>
+                            <span class="schema-node-desc">Uso de levaduras, bacterias y enzimas para síntesis controlada.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">ADN Recombinante</span>
+                            <span class="schema-node-title">Biotecnología Contemporánea</span>
+                            <span class="schema-node-desc">Transferencia precisa de genes para fármacos y cultivos resilientes.</span>
+                        </div>
+                    </div>
+
+                    <p class="body-text">Desde las primeras prácticas agrícolas de domesticación vegetal hace más de diez milenios hasta los biorreactores actuales, esta disciplina se ha consolidado como un pilar indispensable para la medicina, la industria sostenible y la seguridad alimentaria.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Sectores Estratégicos de Implementación</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>Medicina y Terapéutica (Rama Roja):</strong> Síntesis de insulina humana mediante bacterias modificadas, elaboración de antibióticos, vacunas recombinantes (como la de hepatitis B), terapias génicas y análisis forenses mediante huella genética.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Manufactura y Energía Limpia (Rama Blanca):</strong> Obtención de bioetanol y biodiésel a partir de residuos vegetales, fermentación láctea controlada, síntesis de colorantes orgánicos como el índigo y formulación de detergentes enzimáticos biodegradables.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Agroindustria y Nutrición (Ramas Verde y Amarilla):</strong> Micropropagación de tejidos vegetales in vitro, bancos de germoplasma y cultivos biofortificados (maíz enriquecido con vitaminas liposolubles, tomates ricos en licopeno, papas de baja absorción lipídica y yuca hiperproteica).
+                        </div>
+                        <div class="concept-card">
+                            <strong>Saneamiento Ecológico y Recursos Marinos (Ramas Gris y Azul):</strong> Biorremediación de suelos contaminados con hidrocarburos mediante consorcios bacterianos, biolixiviación para extraer minerales sin cianuro y desarrollo de biosensores ambientales.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Innovación Biotecnológica en Oncología</h3>
+                    <p class="body-text">El diagnóstico molecular temprano permite identificar mutaciones tumorales antes de que ocurra metástasis. En el plano terapéutico destacan los anticuerpos monoclonales dirigidos, vacunas preventivas contra el Virus del Papiloma Humano (VPH), inmunoterapias celulares contra el cáncer de próstata y biofármacos moduladores como interferones, interleucina-2 y eritropoyetina.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Taxonomía Cromática Internacional</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #f87171;">Biotecnología Roja</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Enfocada en farmacología, vacunas, diagnóstico clínico y medicina regenerativa.</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #e2e8f0;">Biotecnología Blanca</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Optimización de procesos industriales, biomateriales y biocombustibles.</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #34d399;">Biotecnología Verde</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Mejoramiento genético vegetal, biofertilizantes y control biológico de plagas.</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #38bdf8;">Biotecnología Azul</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Exploración de biodiversidad marina para cosméticos, fármacos y acuicultura.</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #fbbf24;">Biotecnología Amarilla</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Tecnología de alimentos, probióticos y enriquecimiento nutricional.</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: #94a3b8;">Biotecnología Gris</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Tratamiento de aguas residuales, reciclaje biológico y conservación ambiental.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- BIOLOGÍA 2 -->
+            <article class="topic-view" id="bio-u2">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Biología · Unidad 02</span>
+                    <h2>Salud Sexual, Derechos Reproductivos y Marco Normativo</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Impacto de la Gestación no Planificada en Jóvenes</h3>
+                    <p class="body-text">Se define como embarazo no intencional a toda gestación que ocurre sin planificación previa, asociada frecuentemente a barreras de acceso a métodos anticonceptivos, desinformación o vulneración de derechos. Sus repercusiones trascienden lo biológico, afectando la continuidad académica, la estabilidad emocional y el desarrollo socioeconómico juvenil.</p>
+
+                    <div class="callout-panel">
+                        <strong>Enfoque Preventivo Integral:</strong> Las políticas de salud pública demuestran que la Educación Integral de la Sexualidad (EIS), acompañada de servicios médicos confidenciales y redes de soporte familiar, constituye la herramienta más eficaz para reducir las tasas de embarazo adolescente.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Garantías Legales y Protección en el Ecuador</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>Protección Penal en Niñez (Menores de 14 años):</strong> De acuerdo con el Código Orgánico Integral Penal (COIP), cualquier embarazo en niñas de 10 a 14 años constituye jurídicamente un presunto delito de violación, pues la ley determina la incapacidad de consentimiento a esa edad, activando protocolos inmediatos de protección y justicia.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Continuidad Educativa Obligatoria:</strong> La legislación educativa ecuatoriana sanciona cualquier forma de discriminación, suspensión o expulsión de estudiantes gestantes o madres adolescentes, asegurando adaptaciones curriculares para que culminen sus estudios.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Cobertura Sanitaria Gratuita:</strong> El Ministerio de Salud Pública (MSP) provee controles prenatales prioritarios, asistencia obstétrica y seguimiento posparto libre de costos, bajo estándares de atención humanizada.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Causales de Interrupción Legal del Embarazo (Art. 150 COIP)</h3>
+                    <p class="body-text">En el ordenamiento jurídico ecuatoriano, tras las resoluciones de la Corte Constitucional, el procedimiento médico consentido no es sancionado penalmente cuando concurre alguna de estas tres circunstancias:</p>
+                    <div class="concept-stack">
+                        <div class="concept-card"><strong>1. Peligro para la vida de la gestante:</strong> Cuando la continuación del embarazo representa una amenaza vital que no puede mitigarse por otras vías clínicas.</div>
+                        <div class="concept-card"><strong>2. Afectación grave a la salud:</strong> Cuando existe riesgo comprobado para la integridad física, psicológica o social de la mujer.</div>
+                        <div class="concept-card"><strong>3. Embarazo producto de violación:</strong> Despenalizado por fallo constitucional en abril de 2021 para toda mujer víctima de agresión sexual, regulado bajo un límite temporal general de 12 semanas.</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Corrientes de Opinión en el Debate Nacional</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: var(--active-accent);">Enfoque de Derechos Humanos</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Prioriza la autonomía corporal, la salud pública y la eliminación de obstáculos administrativos en zonas rurales. (Colectivos: Surkuna, CEPAM).</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: var(--active-accent);">Enfoque Jurídico-Institucional</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Aplica estricto cumplimiento a las sentencias constitucionales vigentes y guías de práctica clínica del Estado. (Entidades: MSP, Función Judicial).</p>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label" style="color: var(--active-accent);">Enfoque Conservador / Provida</span>
+                            <p class="body-text" style="margin:0; font-size:0.86rem;">Sostiene la defensa absoluta de la vida desde la concepción amparándose en el artículo 45 de la Constitución. (Sectores religiosos y plataformas provida).</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- BIOLOGÍA 3 -->
+            <article class="topic-view" id="bio-u3">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Biología · Unidad 03</span>
+                    <h2>Dinámica Demográfica y Modelización Poblacional</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Formulación Matemática de las Poblaciones</h3>
+                    <p class="body-text">La ecología de poblaciones emplea ecuaciones diferenciales y modelos estadísticos para predecir cómo varía el número de individuos y su estructura etaria frente a factores ambientales. Estas herramientas resultan esenciales en epidemiología, gestión pesquera, control biológico de plagas y conservación de fauna amenazada.</p>
+
+                    <div class="callout-panel">
+                        <strong>Ecuación de Crecimiento Exponencial:</strong> Describe el incremento de una población en condiciones ideales sin limitación de recursos, relacionando natalidad y mortalidad:
+                        <div class="formula-banner">dP / dt = (rₙ - rₘ) · P = r · P</div>
+                        Donde <strong>rₙ</strong> representa la tasa per cápita de natalidad, <strong>rₘ</strong> la tasa de mortalidad, <strong>r</strong> la tasa intrínseca de crecimiento y <strong>P</strong> el tamaño poblacional en el instante <em>t</em>.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Panorama Demográfico Global</h3>
+                    <p class="body-text">La humanidad supera actualmente los 8.200 millones de habitantes. Proyecciones demográficas de las Naciones Unidas estiman que la población alcanzará un pico cercano a los 10.300 millones hacia mediados de la década de 2080, iniciando posteriormente una estabilización o ligero descenso.</p>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>Transición de la Fecundidad:</strong> La tasa global de fecundidad muestra una tendencia descendente sostenida. Más del 50 % de los países registran menos de 2,1 hijos por mujer (tasa de reemplazo), y naciones como Corea del Sur, China, España e Italia presentan niveles ultrabajos inferiores a 1,4.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Maternidad Temprana:</strong> En economías en desarrollo persiste una alta incidencia de nacimientos en madres menores de 18 años (4,7 millones registrados en 2024), lo que demanda mayor inversión en educación secundaria y salud preventiva.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Longevidad y Envejecimiento:</strong> La esperanza de vida mundial se sitúa en 73,3 años. Para finales de los años 2070, la población mayor de 65 años superará numéricamente a los menores de 18 años a escala planetaria.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Límites Ecológicos y Capacidad de Carga (K)</h3>
+                    <p class="body-text">En ecología, la <strong>capacidad de carga (K)</strong> define el tamaño máximo de población que un ecosistema puede sostener indefinidamente sin degradar su base de recursos naturales. Sobrepasar este umbral desencadena escasez hídrica, inseguridad alimentaria y competencia intraespecífica intensa.</p>
+                </div>
+            </article>
+
+            <!-- BIOLOGÍA 4 -->
+            <article class="topic-view" id="bio-u4">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Biología · Unidad 04</span>
+                    <h2>Neurobiología Sensorial: Mecanismo de la Visión</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Etapas de la Función de Relación</h3>
+                    <p class="body-text">La función de relación integra la captación de estímulos internos y externos con la ejecución de respuestas coordinadas para mantener la homeostasis y la supervivencia:</p>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Recepción Sensorial:</strong> Exteroceptores (órganos de los sentidos) e interoceptores (barorreceptores vasculares y quimiorreceptores) captan variaciones físicas o químicas.
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Procesamiento Neural:</strong> Las vías aferentes conducen los potenciales de acción hacia el Sistema Nervioso Central, donde se integran e interpretan.
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Respuesta Efectora:</strong> Vías eferentes activan músculos esqueléticos (respuesta motora) o glándulas endocrinas (respuesta hormonal).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Anatomía Funcional del Globo Ocular</h3>
+                    <p class="body-text">El órgano visual convierte fotones en señales bioeléctricas que permiten percibir profundidad, cromatismo y movimiento. Sus estructuras principales son:</p>
+                    <div class="concept-stack">
+                        <div class="concept-card"><strong>Córnea:</strong> Ventana frontal transparente y avascular que realiza la mayor parte de la refracción inicial de la luz.</div>
+                        <div class="concept-card"><strong>Iris y Pupila:</strong> Diafragma muscular pigmentado que regula el diámetro de la abertura central (pupila) según la intensidad lumínica.</div>
+                        <div class="concept-card"><strong>Esclerótica y Conjuntiva:</strong> La esclerótica aporta rigidez estructural blanca; la conjuntiva lubrica y protege la superficie anterior y los párpados.</div>
+                        <div class="concept-card"><strong>Humores Acuoso y Vítreo:</strong> Fluidos transparentes que nutren estructuras avasculares y conservan la presión intraocular esférica.</div>
+                        <div class="concept-card"><strong>Cristalino:</strong> Lente biconvexa flexible modulada por los músculos ciliares mediante el reflejo de acomodación para enfocar objetos cercanos o lejanos.</div>
+                        <div class="concept-card"><strong>Retina:</strong> Tejido neurosensorial posterior compuesto por fotorreceptores (conos para el color y bastones para baja luminosidad) conectados al nervio óptico.</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Fisiología Óptica e Higiene Visual</h3>
+                    <p class="body-text">Los rayos luminosos atraviesan la córnea, cruzan la pupila y son enfocados por el cristalino formando una imagen real e invertida sobre la retina; allí los fotorreceptores generan impulsos que la corteza occipital del cerebro interpreta en posición correcta.</p>
+                    <div class="callout-panel">
+                        <strong>Prevención y Salud Ocular:</strong> Mantener monitores a una distancia mínima de 50 cm, estudiar con iluminación ambiental homogénea, aplicar descansos visuales periódicos y evitar la exposición directa a partículas irritantes o humo.
+                    </div>
+                </div>
+            </article>
+
+            <!-- BIOLOGÍA 5 -->
+            <article class="topic-view" id="bio-u5">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Biología · Unidad 05</span>
+                    <h2>Fisiología Sensorial: Audición, Equilibrio y Olfato</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Sistema Auditivo y Vestibular</h3>
+                    <p class="body-text">El oído cumple una doble función neurosensorial: la transducción de ondas acústicas (frecuencia, intensidad y timbre) y el mantenimiento del equilibrio espacial. Se estructura en tres compartimentos anatómicos:</p>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Oído Externo:</strong> Integrado por el pabellón auricular cartilaginoso que canaliza las ondas sonoras hacia el conducto auditivo externo.
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Oído Medio:</strong> Cámara aérea limitada por la membrana timpánica, cuyas vibraciones se amplifican mecánicamente mediante la cadena de huesecillos (martillo, yunque y estribo) hacia la ventana oval.
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Oído Interno:</strong> Aloja la cóclea o caracol (donde células ciliadas bañadas en líquido convierten ondas mecánicas en señales eléctricas para el nervio auditivo) y el sistema vestibular.
+                        </div>
+                    </div>
+                    <p class="body-text" style="margin-top: 1rem;">El <strong>aparato vestibular</strong> detecta aceleraciones angulares y lineales mediante tres conductos semicirculares con endolinfa y los órganos otolíticos (utrículo y sáculo).</p>
+                    <div class="callout-panel">
+                        <strong>Higiene Auditiva:</strong> Limitar el volumen en audífonos personales, secar cuidadosamente el pabellón externo tras nadar y abstenerse de introducir hisopos en el canal auditivo para evitar lesiones timpánicas.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Quimiorrecepción Olfatoria</h3>
+                    <p class="body-text">El olfato detecta moléculas volátiles suspendidas en el aire inspirado. En el techo de las fosas nasales, sobre los cornetes superiores, se ubica el epitelio o mucosa olfatoria amarilla.</p>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>Vía Neurosensorial:</strong> Al disolverse en el moco nasal, las sustancias odoríferas estimulan neuronas bipolares cuyos axones atraviesan la lámina cribosa hacia el bulbo olfatorio y el sistema límbico, vinculando aromas con recuerdos y emociones.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Clasificación Primaria de Aromas:</strong> La fisiología clásica agrupa los estímulos olfatorios en siete categorías base: floral, alcanforado, almizclado, etéreo, mentolado, pútrido y acre o picante.
+                        </div>
+                    </div>
+                    <div class="callout-panel">
+                        <strong>Cuidado Nasal:</strong> Mantener hidratación adecuada de las mucosas, tratar oportunamente cuadros gripales y evitar la inhalación directa de vapores químicos corrosivos.
+                    </div>
+                </div>
+            </article>
+
+            <!-- QUÍMICA 1 -->
+            <article class="topic-view" id="qui-u1">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Química Orgánica · Unidad 01</span>
+                    <h2>Funciones Oxigenadas: Estructura y Nomenclatura de Éteres</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Características Estructurales y Fisicoquímicas</h3>
+                    <p class="body-text">Los éteres son derivados orgánicos en los que un átomo de oxígeno actúa como puente entre dos grupos hidrocarbonados (alquilo, arilo o vinilo), pudiendo formar cadenas lineales, ramificadas o estructuras heterocíclicas.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R — O — R'</span>
+                            <span class="schema-node-title">Fórmula General</span>
+                            <span class="schema-node-desc">Oxígeno divalente unido a dos radicales carbonados.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">Ar — O — Ar</span>
+                            <span class="schema-node-title">Éteres Aromáticos</span>
+                            <span class="schema-node-desc">Anillos bencénicos enlazados mediante puente de oxígeno.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₂H₅-O-C₂H₅</span>
+                            <span class="schema-node-title">Éter Dietílico</span>
+                            <span class="schema-node-desc">Disolvente aprótico clásico y antiguo anestésico clínico.</span>
+                        </div>
+                    </div>
+
+                    <div class="callout-panel">
+                        <strong>Aplicaciones Destacadas:</strong> Además de su uso como disolventes de extracción en laboratorio (éter dietílico), compuestos aromáticos como el <em>anisol</em> (metoxibenceno) se emplean en perfumería y síntesis orgánica.
+                    </div>
+                    <p class="body-text">Al carecer de enlaces O–H, las moléculas de éter no establecen puentes de hidrógeno entre sí, exhibiendo puntos de ebullición notablemente menores que sus alcoholes isómeros y una alta estabilidad química.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Sistemas de Nomenclatura</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Nomenclatura Sustitutiva (IUPAC):</strong> Se selecciona la cadena más larga como hidrocarburo base y el fragmento menor (R–O–) se nombra como sustituyente <em>alcoxi-</em> (metoxi, etoxi).<br>
+                            <em>Ejemplos:</em> Metoxietano, 2-Metoxipentano, Metoxiciclobutano.
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Nomenclatura Radicofuncional:</strong> Se citan los dos radicales unidos al oxígeno en orden alfabético seguidos del vocablo <em>éter</em>.<br>
+                            <em>Ejemplos:</em> Etil metil éter, Dietil éter, Butil metil éter.
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Nomenclatura de Reemplazo (Ciclos):</strong> En anillos saturados donde un grupo -CH₂- es sustituido por oxígeno, se antepone el prefijo <em>oxa-</em> asignando al oxígeno la posición 1.<br>
+                            <em>Ejemplos:</em> Oxaciclopropano (epóxido), Oxaciclobutano, 3-Metiloxaciclohexano.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Práctica de Formulación</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label">Compuesto A</span>
+                            <div class="formula-display">CH₃ — O — CH₂ — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q1-a')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q1-a">IUPAC: Metoxietano<br>Funcional: Etil metil éter</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Compuesto B</span>
+                            <div class="formula-display">CH₃ — O — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q1-b')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q1-b">IUPAC: Metoximetano<br>Funcional: Dimetil éter</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- QUÍMICA 2 -->
+            <article class="topic-view" id="qui-u2">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Química Orgánica · Unidad 02</span>
+                    <h2>Funciones Oxigenadas: Alcoholes y Fenoles</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Grupo Hidroxilo y Relevancia Industrial</h3>
+                    <p class="body-text">Los alcoholes se caracterizan por incorporar uno o varios grupos funcionales hidroxilo (<strong>–OH</strong>) enlazados covalentemente a átomos de carbono con hibridación sp³.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R — OH</span>
+                            <span class="schema-node-title">Grupo Hidroxilo</span>
+                            <span class="schema-node-desc">Otorga polaridad y capacidad de formar puentes de hidrógeno.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₂H₅OH</span>
+                            <span class="schema-node-title">Bioetanol</span>
+                            <span class="schema-node-desc">Obtenido por fermentación de azúcares para uso energético y antiséptico.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">Ar — OH</span>
+                            <span class="schema-node-title">Fenoles</span>
+                            <span class="schema-node-desc">Hidroxilo unido directamente a un anillo aromático.</span>
+                        </div>
+                    </div>
+
+                    <p class="body-text">Constituyen intermediarios clave en síntesis farmacéutica, cosmética, perfumería, disolventes industriales y combustibles renovables.</p>
+
+                    <div class="callout-panel alert-danger">
+                        <strong>Alerta Toxicológica (Metanol):</strong> El alcohol metílico (CH₃OH) es altamente neurotóxico. Su metabolización hepática genera formaldehído y ácido fórmico, provocando acidosis metabólica, daño irreversible al nervio óptico (ceguera) y riesgo letal.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Clasificación Estructural</h3>
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R–CH₂–OH</span>
+                            <span class="schema-node-title">Alcohol Primario</span>
+                            <span class="schema-node-desc">El carbono carbinol se une solo a un radical alquilo.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R₂CH–OH</span>
+                            <span class="schema-node-title">Alcohol Secundario</span>
+                            <span class="schema-node-desc">El carbono con el –OH está enlazado a dos cadenas carbonadas.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R₃C–OH</span>
+                            <span class="schema-node-title">Alcohol Terciario</span>
+                            <span class="schema-node-desc">El carbono funcional se une a tres radicales orgánicos.</span>
+                        </div>
+                    </div>
+
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>Monoalcoholes:</strong> Poseen una única función hidroxilo en toda su estructura molecular.
+                        </div>
+                        <div class="concept-card">
+                            <strong>Polialcoholes (Polioles):</strong> Integran dos o más grupos –OH en carbonos distintos (ejemplo: etanodiol o glicerol).
+                        </div>
+                        <div class="concept-card">
+                            <strong>Fenoles:</strong> Compuestos aromáticos hidroxilados extraídos históricamente del alquitrán de hulla, con propiedades ácidas superiores a los alcoholes alifáticos.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Reglas de Nomenclatura</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Nomenclatura Sistemática IUPAC:</strong> Se identifica la cadena más extensa que contenga el grupo –OH, numerándola para darle el localizador más bajo, y se sustituye la vocal final <em>-o</em> del alcano por el sufijo <strong>-ol</strong>.<br>
+                            <em>Ejemplos:</em> Metanol, Etanol, Propan-1-ol.
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Nomenclatura Tradicional:</strong> Se inicia con el sustantivo <em>alcohol</em> seguido del nombre del grupo alquilo con la terminación <em>-ílico</em>.<br>
+                            <em>Ejemplos:</em> Alcohol metílico, Alcohol etílico, Alcohol propílico.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Práctica de Formulación</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label">Compuesto 01</span>
+                            <div class="formula-display">CH₃ — OH</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q2-a')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q2-a">IUPAC: Metanol<br>Tradicional: Alcohol metílico</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Compuesto 02</span>
+                            <div class="formula-display">CH₃ — CH₂ — OH</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q2-b')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q2-b">IUPAC: Etanol<br>Tradicional: Alcohol etílico</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Compuesto 03</span>
+                            <div class="formula-display">CH₃ — CH₂ — CH₂ — OH</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q2-c')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q2-c">IUPAC: Propan-1-ol<br>Tradicional: Alcohol propílico</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- QUÍMICA 3 -->
+            <article class="topic-view" id="qui-u3">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Química Orgánica · Unidad 03</span>
+                    <h2>Hidrocarburos Aromáticos y Derivados del Benceno</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Aromaticidad y Estabilidad del Anillo</h3>
+                    <p class="body-text">Los compuestos aromáticos derivan estructuralmente del benceno (<strong>C₆H₆</strong>), un anillo hexagonal plano con seis carbonos sp² y una nube electrónica π deslocalizada que le confiere una extraordinaria estabilidad termodinámica.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₆H₆</span>
+                            <span class="schema-node-title">Núcleo Bencénico</span>
+                            <span class="schema-node-desc">Resonancia electrónica que impide reacciones de adición típicas.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₆H₅ — R</span>
+                            <span class="schema-node-title">Sustitución Electrófila</span>
+                            <span class="schema-node-desc">Reemplazo de hidrógenos del anillo conservando la aromaticidad.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">o- / m- / p-</span>
+                            <span class="schema-node-title">Isomería de Posición</span>
+                            <span class="schema-node-desc">Orientación relativa de dos sustituyentes en el hexágono.</span>
+                        </div>
+                    </div>
+
+                    <p class="body-text">Son líquidos o sólidos apolares insolubles en agua, miscibles en disolventes orgánicos, combustibles y reactivos principalmente mediante sustitución electrofílica aromática.</p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Reglas de Nomenclatura Aromática</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Derivados Monosustituidos:</strong> Se antepone el nombre del radical sustituyente a la raíz <em>benceno</em>, aunque muchos conservan nombres comunes aceptados por la IUPAC.<br>
+                            <em>Ejemplos:</em> Clorobenceno, Nitrobenceno, Metilbenceno (Tolueno).
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Derivados Disustituidos:</strong> Se emplean localizadores numéricos o los prefijos de posición relativa:
+                            <br>• <strong>Orto (o-):</strong> Posiciones contiguas 1,2
+                            <br>• <strong>Meta (m-):</strong> Posiciones alternas 1,3
+                            <br>• <strong>Para (p-):</strong> Posiciones opuestas 1,4
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Derivados Polisustituidos:</strong> Se numeran los vértices buscando la combinación de localizadores más baja posible (ejemplo: 1,3,5-tribromobenceno o 2,4,6-trinitrotolueno).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Hidrocarburos Aromáticos Policíclicos (HAP)</h3>
+                    <p class="body-text">Están constituidos por la fusión de dos o más anillos bencénicos que comparten átomos de carbono adyacentes. Se generan en procesos pirolíticos y combustiones incompletas.</p>
+                    <div class="callout-panel">
+                        <strong>Representantes Principales:</strong> Naftaleno (dos anillos), Antraceno (tres anillos lineales), Fenantreno, Tetraceno, Trifenileno y Pireno.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Práctica de Formulación</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label">Derivado 01</span>
+                            <div class="formula-display">C₆H₅ — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q3-a')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q3-a">IUPAC: Metilbenceno<br>Común: Tolueno</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Derivado 02</span>
+                            <div class="formula-display">C₆H₅ — NH₂</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q3-b')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q3-b">IUPAC: Bencenamina<br>Común: Anilina</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Derivado 03</span>
+                            <div class="formula-display">C₆H₅ — OH</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q3-c')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q3-c">IUPAC: Hidroxibenceno<br>Común: Fenol</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- QUÍMICA 4 -->
+            <article class="topic-view" id="qui-u4">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Química Orgánica · Unidad 04</span>
+                    <h2>Compuestos Carbonílicos: Aldehídos</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">El Grupo Formilo en los Extremos de Cadena</h3>
+                    <p class="body-text">Los aldehídos contienen un grupo carbonilo (<strong>C=O</strong>) situado necesariamente en un carbono terminal, enlazado a un átomo de hidrógeno y a un radical orgánico (<strong>–CHO</strong>). Poseen amplia aplicación en la fabricación de resinas, desinfectantes, plastificantes y aromatizantes.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R — CHO</span>
+                            <span class="schema-node-title">Grupo Aldehído</span>
+                            <span class="schema-node-desc">Carbono carbonílico terminal siempre con localizador 1.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">H — CHO</span>
+                            <span class="schema-node-title">Metanal</span>
+                            <span class="schema-node-desc">Formaldehído, gas soluble usado como conservante y en resinas.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₆H₅ — CHO</span>
+                            <span class="schema-node-title">Benzaldehído</span>
+                            <span class="schema-node-desc">Aldehído aromático responsable del aroma a almendras amargas.</span>
+                        </div>
+                    </div>
+
+                    <div class="callout-panel">
+                        <strong>Esencias Naturales:</strong> Muchos aldehídos de origen botánico aportan notas aromáticas características en gastronomía y perfumería, destacando el <em>cinamaldehído</em> (canela), el <em>benzaldehído</em> (almendras) y la <em>vainillina</em> (vainilla).
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Normativa IUPAC para Aldehídos</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Terminación Principal (-al):</strong> Se reemplaza la letra <em>-o</em> del hidrocarburo equivalente por el sufijo <strong>-al</strong>, iniciando la numeración en el carbono del grupo –CHO.
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Dialdehídos y Dobles Enlaces:</strong> Cuando existen dos grupos terminales se emplea el sufijo <strong>-dial</strong> (ejemplo: Pentanodial). Las insaturaciones reciben el localizador más bajo tras fijar el carbono 1 en el aldehído (ejemplo: But-3-enal).
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Enlace a Ciclos (-carbaldehído):</strong> Si el grupo –CHO se une directamente a un anillo, se nombra el ciclo seguido de <strong>-carbaldehído</strong> (ejemplo: Ciclohexanocarbaldehído).
+                        </div>
+                        <div class="concept-card">
+                            <strong>4. Función Secundaria (Prefijo formil-):</strong> Si actúa como sustituyente frente a un ácido carboxílico o éster, se designa mediante el prefijo <em>formil-</em>.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Práctica de Formulación</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label">Aldehído 01</span>
+                            <div class="formula-display">CH₃ — CH₂ — CH₂ — CHO</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q4-a')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q4-a">Butanal (Butiraldehído)</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Aldehído 02</span>
+                            <div class="formula-display">OHC — (CH₂)₃ — CHO</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q4-b')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q4-b">Pentanodial</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Aldehído 03</span>
+                            <div class="formula-display">C₆H₅ — CH = CH — CHO</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q4-c')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q4-c">3-Fenilprop-2-enal (Cinamaldehído)</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- QUÍMICA 5 -->
+            <article class="topic-view" id="qui-u5">
+                <div class="topic-hero">
+                    <span class="topic-kicker">Química Orgánica · Unidad 05</span>
+                    <h2>Compuestos Carbonílicos: Cetonas</h2>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Carbonilo Secundario y Polaridad</h3>
+                    <p class="body-text">Las cetonas presentan un grupo carbonilo (<strong>C=O</strong>) situado en un carbono secundario, es decir, flanqueado por dos radicales hidrocarbonados (<strong>R–CO–R'</strong>). A diferencia de los aldehídos, carecen de hidrógeno unido directamente al carbono carbonílico, lo que las hace resistentes a la oxidación suave.</p>
+
+                    <div class="visual-schema">
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">R — CO — R'</span>
+                            <span class="schema-node-title">Estructura Cetónica</span>
+                            <span class="schema-node-desc">Carbono sp² central con geometría trigonal plana.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">CH₃-CO-CH₃</span>
+                            <span class="schema-node-title">Propanona</span>
+                            <span class="schema-node-desc">Acetona comercial, disolvente orgánico polar aprótico universal.</span>
+                        </div>
+                        <div class="schema-node">
+                            <span class="schema-node-symbol">C₆H₁₀O</span>
+                            <span class="schema-node-title">Ciclohexanona</span>
+                            <span class="schema-node-desc">Precursor industrial en la fabricación de fibras de nailon.</span>
+                        </div>
+                    </div>
+
+                    <div class="callout-panel">
+                        <strong>Comportamiento Físico:</strong> Gracias al momento dipolar permanente del enlace C=O, las cetonas exhiben puntos de ebullición más elevados que los alcanos y éteres de masa molar comparable, aunque inferiores a los alcoholes por ausencia de puentes de hidrógeno intermoleculares.
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Normativa IUPAC y Funcional</h3>
+                    <div class="concept-stack">
+                        <div class="concept-card">
+                            <strong>1. Nomenclatura Sustitutiva (-ona):</strong> Se elige la cadena más larga que incluya el grupo carbonilo, numerándola desde el extremo que otorgue el menor localizador posible a la cetona, y se cambia la terminación <em>-o</em> por <strong>-ona</strong> (ejemplo: Pentan-2-ona, Pentano-2,4-diona).
+                        </div>
+                        <div class="concept-card">
+                            <strong>2. Nomenclatura Radicofuncional:</strong> Se nombran los dos grupos unidos al carbonilo en orden alfabético seguidos de la palabra <em>cetona</em> (ejemplo: Etil metil cetona, Dimetil cetona).
+                        </div>
+                        <div class="concept-card">
+                            <strong>3. Como Grupo Sustituyente (Prefijo oxo-):</strong> Cuando coexiste con funciones prioritarias (ácidos, ésteres o aldehídos), el oxígeno carbonílico se indica mediante el prefijo <strong>oxo-</strong> (ejemplo: 4-Oxopentanal).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="section-heading">Práctica de Formulación</h3>
+                    <div class="cards-matrix">
+                        <div class="data-tile">
+                            <span class="tile-label">Cetona 01</span>
+                            <div class="formula-display">CH₃ — CO — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q5-a')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q5-a">IUPAC: Propanona<br>Común: Dimetil cetona (Acetona)</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Cetona 02</span>
+                            <div class="formula-display">CH₃ — CH₂ — CO — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q5-b')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q5-b">IUPAC: Butanona<br>Común: Etil metil cetona</div>
+                        </div>
+                        <div class="data-tile">
+                            <span class="tile-label">Cetona 03</span>
+                            <div class="formula-display">CH₃ — CO — CH₂ — CO — CH₃</div>
+                            <button class="reveal-action" onclick="toggleSolution('sol-q5-c')">Comprobar Nomenclatura</button>
+                            <div class="solution-drawer" id="sol-q5-c">IUPAC: Pentano-2,4-diona</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Barra Inferior de Navegación Secuencial por Páginas del Cuaderno -->
+            <div class="lesson-footer-nav">
+                <button type="button" class="step-nav-btn" id="prev-unit-btn" onclick="navigateStep(-1)">
+                    ← Unidad Anterior
+                </button>
+                <span class="step-indicator" id="unit-step-counter">Unidad 1 de 5</span>
+                <button type="button" class="step-nav-btn" id="next-unit-btn" onclick="navigateStep(1)">
+                    Unidad Siguiente →
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        const curriculumData = {
+            bio: {
+                label: "Biología",
+                nextHint: "Pulsar para alternar a Química",
+                heading: "Unidades de Biología",
+                accent: "var(--bio-accent)",
+                glow: "var(--bio-glow)",
+                soft: "var(--bio-soft)",
+                border: "var(--bio-border)",
+                units: [
+                    { id: "bio-u1", code: "01", name: "Biotecnología Moderna y Aplicaciones" },
+                    { id: "bio-u2", code: "02", name: "Salud Sexual y Marco Legal (EIS)" },
+                    { id: "bio-u3", code: "03", name: "Dinámica Demográfica y Poblaciones" },
+                    { id: "bio-u4", code: "04", name: "Neurobiología: Sentido de la Vista" },
+                    { id: "bio-u5", code: "05", name: "Audición, Equilibrio y Olfato" }
+                ]
+            },
+            qui: {
+                label: "Química",
+                nextHint: "Pulsar para alternar a Biología",
+                heading: "Unidades de Química",
+                accent: "var(--qui-accent)",
+                glow: "var(--qui-glow)",
+                soft: "var(--qui-soft)",
+                border: "var(--qui-border)",
+                units: [
+                    { id: "qui-u1", code: "01", name: "Funciones Oxigenadas: Éteres" },
+                    { id: "qui-u2", code: "02", name: "Funciones Oxigenadas: Alcoholes" },
+                    { id: "qui-u3", code: "03", name: "Aromáticos: Derivados del Benceno" },
+                    { id: "qui-u4", code: "04", name: "Compuestos Carbonílicos: Aldehídos" },
+                    { id: "qui-u5", code: "05", name: "Compuestos Carbonílicos: Cetonas" }
+                ]
+            }
+        };
+
+        let activeDiscipline = "bio";
+        let activeUnitId = "bio-u1";
+
+        function cycleDiscipline() {
+            const nextKey = activeDiscipline === "bio" ? "qui" : "bio";
+            changeDiscipline(nextKey);
+        }
+
+        function changeDiscipline(disciplineKey) {
+            activeDiscipline = disciplineKey;
+            const config = curriculumData[disciplineKey];
+
+            document.getElementById("active-notebook-label").textContent = config.label;
+            document.getElementById("next-notebook-hint").textContent = config.nextHint;
+
+            const rootStyle = document.documentElement.style;
+            rootStyle.setProperty("--active-accent", config.accent);
+            rootStyle.setProperty("--active-glow", config.glow);
+            rootStyle.setProperty("--active-soft", config.soft);
+            rootStyle.setProperty("--active-border", config.border);
+
+            document.getElementById("panel-subtitle").textContent = config.heading;
+
+            if (config.units.length > 0) {
+                openUnit(config.units[0].id);
+            }
+        }
+
+        function buildNavigation() {
+            const navContainer = document.getElementById("module-navigation");
+            navContainer.innerHTML = "";
+
+            curriculumData[activeDiscipline].units.forEach((unit) => {
+                const listItem = document.createElement("li");
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = `module-btn ${unit.id === activeUnitId ? "is-selected" : ""}`;
+                button.innerHTML = `<span class="module-num">${unit.code}</span><span>${unit.name}</span>`;
+                button.addEventListener("click", () => openUnit(unit.id));
+                listItem.appendChild(button);
+                navContainer.appendChild(listItem);
+            });
+        }
+
+        function updateStepControls() {
+            const units = curriculumData[activeDiscipline].units;
+            const currentIndex = units.findIndex((u) => u.id === activeUnitId);
+
+            const prevBtn = document.getElementById("prev-unit-btn");
+            const nextBtn = document.getElementById("next-unit-btn");
+            const counter = document.getElementById("unit-step-counter");
+
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= units.length - 1;
+            counter.textContent = `Unidad ${currentIndex + 1} de ${units.length}`;
+        }
+
+        function navigateStep(direction) {
+            const units = curriculumData[activeDiscipline].units;
+            const currentIndex = units.findIndex((u) => u.id === activeUnitId);
+            const targetIndex = currentIndex + direction;
+
+            if (targetIndex >= 0 && targetIndex < units.length) {
+                openUnit(units[targetIndex].id);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        }
+
+        function openUnit(unitId) {
+            activeUnitId = unitId;
+
+            document.querySelectorAll(".topic-view").forEach((section) => {
+                section.classList.remove("is-visible");
+            });
+
+            const currentArticle = document.getElementById(unitId);
+            if (currentArticle) {
+                currentArticle.classList.add("is-visible");
+            }
+
+            buildNavigation();
+            updateStepControls();
+        }
+
+        function toggleSolution(drawerId) {
+            const drawer = document.getElementById(drawerId);
+            if (drawer) {
+                drawer.classList.toggle("is-open");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            changeDiscipline("bio");
+        });
+    </script>
+</body>
+</html>
